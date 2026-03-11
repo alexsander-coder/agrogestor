@@ -1,0 +1,209 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  active    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  OPERADOR
+  GERENTE
+}
+
+model Employee {
+  id           String   @id @default(uuid())
+  name         String
+  document     String?
+  position     String?
+  salary       Float?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Item {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  unit          String
+  stock         Float    @default(0)
+  minimumStock  Float    @default(0)
+
+  movements     StockMovement[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StockMovement {
+  id        String   @id @default(uuid())
+
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+
+  type      MovementType
+  quantity  Float
+  reason    String?
+
+  createdAt DateTime @default(now())
+}
+
+enum MovementType {
+  ENTRY
+  EXIT
+  ADJUSTMENT
+}
+
+model CashAccount {
+  id        String   @id @default(uuid())
+  name      String
+  balance   Float    @default(0)
+
+  entries   FinancialEntry[]
+
+  createdAt DateTime @default(now())
+}
+
+model FinancialEntry {
+  id          String   @id @default(uuid())
+
+  accountId   String
+  account     CashAccount @relation(fields: [accountId], references: [id])
+
+  type        FinancialType
+  value       Float
+  description String?
+
+  createdAt   DateTime @default(now())
+}
+
+enum FinancialType {
+  INCOME
+  EXPENSE
+}
+
+model Vehicle {
+  id        String   @id @default(uuid())
+  plate     String   @unique
+  model     String
+  brand     String
+  year      Int
+
+  odometer  Float    @default(0)
+
+  maintenances Maintenance[]
+  refuels      Refuel[]
+
+  createdAt DateTime @default(now())
+}
+
+model Maintenance {
+  id        String   @id @default(uuid())
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+
+  description String
+  cost        Float
+  date        DateTime
+
+  createdAt DateTime @default(now())
+}
+
+model FuelTank {
+  id       String @id @default(uuid())
+  name     String
+  capacity Float
+  level    Float  @default(0)
+
+  entries  FuelEntry[]
+  refuels  Refuel[]
+}
+
+model FuelEntry {
+  id        String   @id @default(uuid())
+
+  tankId    String
+  tank      FuelTank @relation(fields: [tankId], references: [id])
+
+  liters    Float
+  price     Float?
+
+  createdAt DateTime @default(now())
+}
+
+model Refuel {
+  id        String   @id @default(uuid())
+
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  tankId    String
+  tank      FuelTank @relation(fields: [tankId], references: [id])
+
+  liters    Float
+  odometer  Float
+
+  createdAt DateTime @default(now())
+}
+
+model Area {
+  id        String @id @default(uuid())
+  name      String
+  size      Float
+
+  plantings Planting[]
+}
+
+model Crop {
+  id     String @id @default(uuid())
+  name   String
+
+  plantings Planting[]
+}
+
+model Planting {
+  id        String @id @default(uuid())
+
+  areaId    String
+  area      Area   @relation(fields: [areaId], references: [id])
+
+  cropId    String
+  crop      Crop   @relation(fields: [cropId], references: [id])
+
+  plantingDate DateTime
+
+  harvest   Harvest?
+}
+
+model Harvest {
+  id          String   @id @default(uuid())
+
+  plantingId  String   @unique
+  planting    Planting @relation(fields: [plantingId], references: [id])
+
+  quantity    Float
+  harvestDate DateTime
+}
