@@ -52,6 +52,7 @@ model Item {
   minimumStock  Float    @default(0)
 
   movements     StockMovement[]
+  plantingInputs PlantingInput[] 
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -184,6 +185,17 @@ model Crop {
   plantings Planting[]
 }
 
+model Season {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime?
+
+  plantings Planting[]
+
+  createdAt DateTime @default(now())
+}
+
 model Planting {
   id        String @id @default(uuid())
 
@@ -193,9 +205,14 @@ model Planting {
   cropId    String
   crop      Crop   @relation(fields: [cropId], references: [id])
 
+  seasonId  String
+  season    Season @relation(fields: [seasonId], references: [id])
+
   plantingDate DateTime
 
   harvest   Harvest?
+
+  inputs    PlantingInput[]   // <-- adicionar
 }
 
 model Harvest {
@@ -206,4 +223,16 @@ model Harvest {
 
   quantity    Float
   harvestDate DateTime
+}
+
+model PlantingInput {
+  id         String @id @default(uuid())
+
+  plantingId String
+  planting   Planting @relation(fields: [plantingId], references: [id])
+
+  itemId     String
+  item       Item @relation(fields: [itemId], references: [id])
+
+  quantity   Float
 }
