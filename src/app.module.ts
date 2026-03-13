@@ -9,6 +9,7 @@ import { PlantioModule } from './modules/plantio/plantio.module';
 import { FrotaModule } from './modules/frota/frota.module';
 import { DieselModule } from './modules/diesel/diesel.module';
 import { DatabaseModule } from './database/database.module';
+import { SeasonModule } from './modules/season/season.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { DatabaseModule } from './database/database.module';
     PlantioModule,
     FrotaModule,
     DieselModule,
-    DatabaseModule
+    DatabaseModule,
+    SeasonModule
   ],
 })
 export class AppModule { }
